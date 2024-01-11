@@ -1,3 +1,8 @@
+package data;
+
+import dialog.ColorDialog;
+import dialog.PathDialog;
+
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -12,10 +17,15 @@ public interface CutImageRepository {
     AtomicReference<ImageIcon> image = new AtomicReference<>();
     String separator = File.separator;
     String[] imageType = {"png", "jpg"};
-    String[] selectType = {"png", "jpg"};
     // menu
-    String[] menus = {LanguageField.FILE.getText()};
-    ItemListener[] menuListener = {e -> PathDialog.start()};
+    String[] menus = {
+            LanguageField.FILE.getText(),
+            LanguageField.COLOR.getText()
+    };
+    ItemListener[] menuListener = {
+            e -> PathDialog.start(),
+            e -> ColorDialog.start()
+    };
     // view
     JTextField xField = new JTextField("0", 5);
     JTextField yField = new JTextField("0", 5);
@@ -53,12 +63,16 @@ public interface CutImageRepository {
         }}, BorderLayout.SOUTH);
     }};
 
-    default int getInteger(JTextField textField) {
+    default int getInteger(String text) {
         try {
-            return Integer.parseInt(textField.getText());
+            return Integer.parseInt(text);
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    default int getInteger(JTextField textField) {
+        return getInteger(textField.getText());
     }
 
     default void setNumericFilter(JTextField textField) {
@@ -66,56 +80,47 @@ public interface CutImageRepository {
             @Override
             public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
                 try {
-                    int value = Integer.parseInt(text);
-                    ImageIcon icon = image.get();
                     // 음수 입력 방지
-                    if (value < 0)
+                    if (Integer.parseInt(text) < 0)
                         return;
-
-                    int width = icon.getIconWidth();
-                    int height = icon.getIconHeight();
-                    if (textField == widthField) {
-                        int x = getInteger(xField);
-                        if (x + value > width) {
-                            String t = Integer.toString(width - x);
-                            super.replace(fb, 0, t.length(), t, attrs);
-                            return;
-                        }
-                    } else if (textField == xField) {
-                        int w = getInteger(widthField);
-                        if (w + value > width) {
-                            String t = Integer.toString(width - w);
-                            super.replace(fb, 0, t.length(), t, attrs);
-                            return;
-                        }
-                    } else if (textField == heightField) {
-                        int y = getInteger(yField);
-                        if (y + value > height) {
-                            String t = Integer.toString(height - y);
-                            super.replace(fb, 0, t.length(), t, attrs);
-                            return;
-                        }
-                    } else if (textField == yField) {
-                        int h = getInteger(heightField);
-                        if (h + value > height) {
-                            String t = Integer.toString(height - h);
-                            super.replace(fb, 0, t.length(), t, attrs);
-                            return;
-                        }
-                    }
                     super.replace(fb, offset, length, text, attrs);
+//                    String document = fb.getDocument().getText(0, fb.getDocument().getLength()) + text;
+//                    int value = getInteger(document);
+//                    ImageIcon icon = image.get();
+//                    int width = icon.getIconWidth();
+//                    int height = icon.getIconHeight();
+//
+//                    if (textField == widthField) {
+//                        int x = getInteger(xField);
+//                        if (x + value > width) {
+//                            text = Integer.toString(width - x);
+//                            super.replace(fb, offset, length, text, attrs);
+//                            return;
+//                        }
+//                    } else if (textField == xField) {
+//                        int w = getInteger(widthField);
+//                        if (w + value > width) {
+//                            text = Integer.toString(width - w);
+//                            super.replace(fb, offset, length, text, attrs);
+//                            return;
+//                        }
+//                    } else if (textField == heightField) {
+//                        int y = getInteger(yField);
+//                        if (y + value > height) {
+//                            text = Integer.toString(height - y);
+//                            super.replace(fb, offset, length, text, attrs);
+//                            return;
+//                        }
+//                    } else if (textField == yField) {
+//                        int h = getInteger(heightField);
+//                        if (h + value > height) {
+//                            text = Integer.toString(height - h);
+//                            super.replace(fb, offset, length, text, attrs);
+//                            return;
+//                        }
+//                    }
                 } catch (NumberFormatException ignored) {}
             }
         });
-    }
-
-    // 이미지 크기가 넘어갔을때 불러오는 함수
-    private void imageSizeWarring() {
-        String message = LanguageField.IMAGE_SIZE_WARRING.getText();
-    }
-
-    private void widthHeightWarring() {
-        String message = LanguageField.WIDTH_HEIGHT_WARRING.getText();
-//        new Notifications().show(Notifications.Type.WARNING, message);
     }
 }

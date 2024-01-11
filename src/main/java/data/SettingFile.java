@@ -7,7 +7,7 @@ public class SettingFile implements Serializable {
     @Serial
     private static final long serialVersionUID = 1391911266022262825L;
 
-    public String savePath = CutImageRepository.separator;
+    public String savePath = "." + CutImageRepository.separator;
     public boolean useColor = false;
     public Color fromColor = new Color(0, 0, 0, 0);
     public Color toColor = Color.BLACK;

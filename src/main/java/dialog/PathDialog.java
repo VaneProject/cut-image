@@ -1,9 +1,18 @@
+package dialog;
+
+import data.LanguageField;
+import data.SettingFile;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 
 public class PathDialog extends JDialog {
     private final JTextField savePath = new JTextField(15);
+    private final static PathDialog dialog = new PathDialog();
+    static {
+        dialog.savePath.setText(SettingFile.setting.savePath);
+    }
 
     private PathDialog() {
         final JButton finish = new JButton(LanguageField.SAVE.getText());
@@ -26,30 +35,13 @@ public class PathDialog extends JDialog {
         savePath.setText(chooser.getSelectedFile().getAbsolutePath());
     }
 
-    private final static String SETTING = "setting.vane";
-    private final static PathDialog dialog = new PathDialog();
-    public static SettingFile setting;
-    static {
-        try (FileInputStream fis = new FileInputStream(SETTING);
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
-            setting = (SettingFile) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            setting = new SettingFile();
-        }
-        dialog.savePath.setText(setting.savePath);
-    }
     public static void start() {
         dialog.setVisible(true);
     }
 
     public static void finish() {
-        setting.savePath = dialog.savePath.getText();
+        SettingFile.setting.savePath = dialog.savePath.getText();
         dialog.setVisible(false);
-        try (FileOutputStream fos = new FileOutputStream(SETTING);
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(setting);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        SettingFile.save();
     }
 }
